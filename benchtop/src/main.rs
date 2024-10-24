@@ -7,6 +7,7 @@ mod sp_trie;
 mod timer;
 mod transfer_workload;
 mod workload;
+mod reth;
 
 use anyhow::Result;
 use clap::Parser;
@@ -58,7 +59,7 @@ pub fn run(params: RunParams) -> Result<()> {
     let mut timer = Timer::new(format!("{}", params.backend));
     let warmup_timeout = params
         .warm_up
-        .map(|time_limit| std::time::Instant::now() + time_limit.into());
+        .map(|time_limit| std::time::Instant::now() + *time_limit);
 
     let thread_pool = rayon::ThreadPoolBuilder::new()
         .thread_name(|_| "benchtop-workload".into())
@@ -78,7 +79,7 @@ pub fn run(params: RunParams) -> Result<()> {
     let timeout = params
         .limits
         .time
-        .map(|time_limit| std::time::Instant::now() + time_limit.into());
+        .map(|time_limit| std::time::Instant::now() + *time_limit);
 
     if workload_params.workload_concurrency == 1 {
         db.execute(Some(&mut timer), &mut *workloads[0], timeout);

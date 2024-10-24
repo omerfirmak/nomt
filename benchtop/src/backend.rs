@@ -1,10 +1,11 @@
-use crate::{nomt::NomtDB, sov_db::SovDB, sp_trie::SpTrieDB, timer::Timer, workload::Workload};
+use crate::{nomt::NomtDB, sov_db::SovDB, sp_trie::SpTrieDB, reth::RethDB, timer::Timer, workload::Workload};
 
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum Backend {
     SovDB,
     Nomt,
     SpTrie,
+    Reth,
 }
 
 impl Backend {
@@ -31,6 +32,7 @@ impl Backend {
                 hashtable_buckets,
             )),
             Backend::SpTrie => DB::SpTrie(SpTrieDB::open(reset)),
+            Backend::Reth => DB::Reth(RethDB::open(reset)),
         }
     }
 }
@@ -52,6 +54,7 @@ pub enum DB {
     Sov(SovDB),
     SpTrie(SpTrieDB),
     Nomt(NomtDB),
+    Reth(RethDB),
 }
 
 impl DB {
@@ -74,6 +77,7 @@ impl DB {
                 DB::Sov(db) => db.execute(timer, workload),
                 DB::SpTrie(db) => db.execute(timer, workload),
                 DB::Nomt(db) => db.execute(timer, workload),
+                DB::Reth(db) => db.execute(timer, workload),
             }
         }
     }
@@ -101,6 +105,9 @@ impl DB {
                     anyhow::bail!("parallel execution is only supported with the NOMT backend.")
                 }
                 DB::SpTrie(_) => {
+                    anyhow::bail!("parallel execution is only supported with the NOMT backend.")
+                }
+                DB::Reth(_) => {
                     anyhow::bail!("parallel execution is only supported with the NOMT backend.")
                 }
                 DB::Nomt(db) => db.parallel_execute(timer, thread_pool, workloads),

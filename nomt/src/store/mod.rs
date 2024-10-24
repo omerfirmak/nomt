@@ -16,6 +16,9 @@ use std::{
     sync::Arc,
 };
 
+#[cfg(target_os = "macos")]
+use std::os::fd::AsRawFd;
+
 #[cfg(target_os = "linux")]
 use std::os::unix::fs::OpenOptionsExt as _;
 
